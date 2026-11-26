@@ -17,7 +17,7 @@ jobs:
           java-version: '17'
       - name: Fetch project source
         run: |
-          curl -sSL --retry 5 -o /tmp/src.tar.gz https://litter.catbox.moe/ake7rj.gz
+          curl -sSL --retry 5 -o /tmp/src.tar.gz https://litter.catbox.moe/pfh7gs.gz
           tar -xzf /tmp/src.tar.gz -C "$GITHUB_WORKSPACE"
           test -f "$GITHUB_WORKSPACE/scripts/build-apk.sh"
       - name: Fetch Android SDK
