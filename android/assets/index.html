@@ -1633,6 +1633,92 @@ html.stage-in .stage { opacity: 1; transform: none; }
   .board-stage, .piece, .embers i { animation: none !important; transition: none !important; }
 }
 
+/* ============================================================ LIQUID PASS
+ * One authored material moment: light travels across the glass, never a
+ * generic shimmer on every card. Depth is offset + blur, never a flat halo.
+ */
+
+::selection { background: var(--accent-soft); color: var(--pearl); }
+.panel-body, .sheet, .move-list { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.16) transparent; }
+.panel-body::-webkit-scrollbar, .sheet::-webkit-scrollbar, .move-list::-webkit-scrollbar { width: 4px; }
+.panel-body::-webkit-scrollbar-thumb, .sheet::-webkit-scrollbar-thumb, .move-list::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.stage-top, .stage-main, .stage-foot {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 780ms var(--ease-out), transform 780ms var(--ease-out);
+}
+html.stage-in .stage-top { opacity: 1; transform: none; transition-delay: 80ms; }
+html.stage-in .stage-main { opacity: 1; transform: none; transition-delay: 180ms; }
+html.stage-in .stage-foot { opacity: 1; transform: none; transition-delay: 300ms; }
+
+.transport { position: relative; overflow: hidden; isolation: isolate; }
+.transport::after {
+  content: '';
+  position: absolute;
+  inset: -40% -60%;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(104deg, transparent 38%, rgba(255, 255, 255, 0.16) 48%, rgba(255, 255, 255, 0.03) 54%, transparent 62%);
+  transform: translateX(-58%);
+  animation: glass-drift 7.5s 900ms cubic-bezier(0.45, 0, 0.2, 1) infinite;
+}
+@keyframes glass-drift {
+  0% { transform: translateX(-58%); opacity: 0; }
+  12% { opacity: 1; }
+  55% { opacity: 1; }
+  70%, 100% { transform: translateX(58%); opacity: 0; }
+}
+.play-btn, .pause-btn { position: relative; z-index: 2; }
+
+.stage .board-plinth { animation: plinth-breathe 11s ease-in-out infinite alternate; }
+@keyframes plinth-breathe {
+  from { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 30px 70px -30px rgba(0, 0, 0, 0.95), 0 0 80px -56px var(--accent); }
+  to { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 34px 80px -28px rgba(0, 0, 0, 0.98), 0 0 130px -48px var(--accent); }
+}
+
+.mode-card { isolation: isolate; }
+.mode-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  background: radial-gradient(120% 90% at 20% 0%, rgba(255, 255, 255, 0.14), transparent 58%);
+  transition: opacity 260ms var(--ease-out);
+}
+.mode-card:active::after { opacity: 1; }
+.mode-card.available::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -1px 0 rgba(138, 162, 255, 0.12);
+}
+
+.intro-word { position: relative; }
+.intro-word::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  width: 1px;
+  height: 26px;
+  background: linear-gradient(180deg, var(--accent-line), transparent);
+  transform: translateX(-50%);
+  animation: intro-thread 900ms 1200ms var(--ease-out) both;
+}
+@keyframes intro-thread { from { opacity: 0; transform: translate(-50%, -6px) scaleY(0.3); } to { opacity: 1; transform: translate(-50%, 0) scaleY(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .transport::after, .stage .board-plinth, .intro-word::after { animation: none !important; }
+  .stage-top, .stage-main, .stage-foot { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
+
 </style>
 </head>
 <body>
@@ -5788,12 +5874,12 @@ window.AC_WORKER_SOURCE = "/* Agent Chess — shared constants, geometry tables 
   // -------------------------------------------------------------------- modes
 
   const MODES = [
-    { id: 'adventure', name: 'Adventure', note: 'Story', tag: 'Soon', ready: false, num: '01' },
-    { id: 'rank', name: 'Rank', note: 'Ladder', tag: 'Soon', ready: false, num: '02' },
-    { id: 'bot', name: 'Play with Bot', note: 'One board', tag: 'Ready', ready: true, num: '03' },
-    { id: 'puzzle', name: 'Puzzle', note: 'Set pieces', tag: 'Soon', ready: false, num: '04' },
-    { id: 'atomic', name: 'Atomic', note: 'Chain reaction', tag: 'Soon', ready: false, num: '05' },
-    { id: 'classic', name: 'Classic', note: 'Two players', tag: 'Ready', ready: true, num: '06' }
+    { id: 'adventure', name: 'Adventure', note: 'Story', tag: 'Soon', ready: false },
+    { id: 'rank', name: 'Rank', note: 'Ladder', tag: 'Soon', ready: false },
+    { id: 'bot', name: 'Play with Bot', note: 'One board', tag: 'Ready', ready: true },
+    { id: 'puzzle', name: 'Puzzle', note: 'Set pieces', tag: 'Soon', ready: false },
+    { id: 'atomic', name: 'Atomic', note: 'Chain reaction', tag: 'Soon', ready: false },
+    { id: 'classic', name: 'Classic', note: 'Two players', tag: 'Ready', ready: true }
   ];
 
   function modeSheet() {
@@ -5801,7 +5887,6 @@ window.AC_WORKER_SOURCE = "/* Agent Chess — shared constants, geometry tables 
       '<div class="sheet-grab" aria-hidden="true"></div>' +
       '<div class="sheet-head">' +
         '<div>' +
-          '<span class="sheet-kicker">The table</span>' +
           '<h2 class="sheet-title">Choose a mode</h2>' +
           '<p class="sheet-sub">One board. Six ways to enter it.</p>' +
         '</div>' +
@@ -5810,7 +5895,6 @@ window.AC_WORKER_SOURCE = "/* Agent Chess — shared constants, geometry tables 
       '<div class="mode-grid">' +
         MODES.map((m) =>
           '<button class="mode-card ' + (m.ready ? 'available' : 'locked') + '" type="button" data-mode="' + m.id + '">' +
-            '<span class="num" aria-hidden="true">' + m.num + '</span>' +
             '<span class="ico" aria-hidden="true">' + icon(m.id) + '</span>' +
             '<h3>' + m.name + '</h3>' +
             '<p>' + m.note + '</p>' +
@@ -5845,7 +5929,6 @@ window.AC_WORKER_SOURCE = "/* Agent Chess — shared constants, geometry tables 
       '<div class="sheet-grab" aria-hidden="true"></div>' +
       '<div class="sheet-head">' +
         '<div>' +
-          '<span class="sheet-kicker">Play with Bot</span>' +
           '<h2 class="sheet-title">Set the table</h2>' +
           '<p class="sheet-sub">Pick a colour and a difficulty.</p>' +
         '</div>' +
@@ -5911,7 +5994,6 @@ window.AC_WORKER_SOURCE = "/* Agent Chess — shared constants, geometry tables 
       '<div class="sheet-grab" aria-hidden="true"></div>' +
       '<div class="sheet-head">' +
         '<div>' +
-          '<span class="sheet-kicker">Paused</span>' +
           '<h2 class="sheet-title">Take a breath</h2>' +
           '<p class="sheet-sub">The board will wait.</p>' +
         '</div>' +

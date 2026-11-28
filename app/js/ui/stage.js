@@ -161,12 +161,12 @@
   // -------------------------------------------------------------------- modes
 
   const MODES = [
-    { id: 'adventure', name: 'Adventure', note: 'Story', tag: 'Soon', ready: false, num: '01' },
-    { id: 'rank', name: 'Rank', note: 'Ladder', tag: 'Soon', ready: false, num: '02' },
-    { id: 'bot', name: 'Play with Bot', note: 'One board', tag: 'Ready', ready: true, num: '03' },
-    { id: 'puzzle', name: 'Puzzle', note: 'Set pieces', tag: 'Soon', ready: false, num: '04' },
-    { id: 'atomic', name: 'Atomic', note: 'Chain reaction', tag: 'Soon', ready: false, num: '05' },
-    { id: 'classic', name: 'Classic', note: 'Two players', tag: 'Ready', ready: true, num: '06' }
+    { id: 'adventure', name: 'Adventure', note: 'Story', tag: 'Soon', ready: false },
+    { id: 'rank', name: 'Rank', note: 'Ladder', tag: 'Soon', ready: false },
+    { id: 'bot', name: 'Play with Bot', note: 'One board', tag: 'Ready', ready: true },
+    { id: 'puzzle', name: 'Puzzle', note: 'Set pieces', tag: 'Soon', ready: false },
+    { id: 'atomic', name: 'Atomic', note: 'Chain reaction', tag: 'Soon', ready: false },
+    { id: 'classic', name: 'Classic', note: 'Two players', tag: 'Ready', ready: true }
   ];
 
   function modeSheet() {
@@ -174,7 +174,6 @@
       '<div class="sheet-grab" aria-hidden="true"></div>' +
       '<div class="sheet-head">' +
         '<div>' +
-          '<span class="sheet-kicker">The table</span>' +
           '<h2 class="sheet-title">Choose a mode</h2>' +
           '<p class="sheet-sub">One board. Six ways to enter it.</p>' +
         '</div>' +
@@ -183,7 +182,6 @@
       '<div class="mode-grid">' +
         MODES.map((m) =>
           '<button class="mode-card ' + (m.ready ? 'available' : 'locked') + '" type="button" data-mode="' + m.id + '">' +
-            '<span class="num" aria-hidden="true">' + m.num + '</span>' +
             '<span class="ico" aria-hidden="true">' + icon(m.id) + '</span>' +
             '<h3>' + m.name + '</h3>' +
             '<p>' + m.note + '</p>' +
@@ -218,7 +216,6 @@
       '<div class="sheet-grab" aria-hidden="true"></div>' +
       '<div class="sheet-head">' +
         '<div>' +
-          '<span class="sheet-kicker">Play with Bot</span>' +
           '<h2 class="sheet-title">Set the table</h2>' +
           '<p class="sheet-sub">Pick a colour and a difficulty.</p>' +
         '</div>' +
@@ -284,7 +281,6 @@
       '<div class="sheet-grab" aria-hidden="true"></div>' +
       '<div class="sheet-head">' +
         '<div>' +
-          '<span class="sheet-kicker">Paused</span>' +
           '<h2 class="sheet-title">Take a breath</h2>' +
           '<p class="sheet-sub">The board will wait.</p>' +
         '</div>' +
