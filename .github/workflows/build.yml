@@ -7,11 +7,6 @@ name: Build APK
 # from the checked-out repository, so a push to main always produces an APK.
 on:
   workflow_dispatch:
-    inputs:
-      version_name:
-        description: "versionName override"
-        required: false
-        default: "1.1"
   push:
     branches: [main]
 
@@ -48,33 +43,23 @@ jobs:
           echo "ANDROID_SDK=$SDK" >> "$GITHUB_ENV"
 
       - name: Prepare signing key
-        env:
-          KEY_B64: ${{ secrets.AGENT_CHESS_KEY_PK8 }}
-          CERT_B64: ${{ secrets.AGENT_CHESS_CERT_DER }}
         run: |
           set -euo pipefail
           mkdir -p signing
-          if [ -n "${KEY_B64:-}" ] && [ -n "${CERT_B64:-}" ]; then
-            echo "using repository signing key"
-            printf '%s' "$KEY_B64" | base64 -d > signing/key.pk8
-            printf '%s' "$CERT_B64" | base64 -d > signing/cert.der
-          else
-            echo "no signing secrets found - generating an ephemeral key"
-            keytool -genkeypair -v \
-              -keystore signing/keystore.jks \
-              -storepass agentchess -keypass agentchess \
-              -alias agentchess -keyalg RSA -keysize 2048 -validity 10000 \
-              -dname "CN=Agent Chess, OU=Dev, O=Nolmodal, L=Yogyakarta, C=ID"
-            keytool -exportcert -rfc -keystore signing/keystore.jks \
-              -storepass agentchess -alias agentchess -file signing/cert.pem
-            openssl x509 -in signing/cert.pem -outform DER -out signing/cert.der
-            keytool -importkeystore -noprompt \
-              -srckeystore signing/keystore.jks -srcstorepass agentchess \
-              -destkeystore signing/key.p12 -deststoretype PKCS12 -deststorepass agentchess
-            openssl pkcs12 -in signing/key.p12 -nocerts -nodes \
-              -passin pass:agentchess -out signing/key.pem
-            openssl pkcs8 -topk8 -nocrypt -in signing/key.pem -outform DER -out signing/key.pk8
-          fi
+          keytool -genkeypair -v \
+            -keystore signing/keystore.jks \
+            -storepass agentchess -keypass agentchess \
+            -alias agentchess -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=Agent Chess, OU=Dev, O=Nolmodal, L=Yogyakarta, C=ID"
+          keytool -exportcert -rfc -keystore signing/keystore.jks \
+            -storepass agentchess -alias agentchess -file signing/cert.pem
+          openssl x509 -in signing/cert.pem -outform DER -out signing/cert.der
+          keytool -importkeystore -noprompt \
+            -srckeystore signing/keystore.jks -srcstorepass agentchess \
+            -destkeystore signing/key.p12 -deststoretype PKCS12 -deststorepass agentchess
+          openssl pkcs12 -in signing/key.p12 -nocerts -nodes \
+            -passin pass:agentchess -out signing/key.pem
+          openssl pkcs8 -topk8 -nocrypt -in signing/key.pem -outform DER -out signing/key.pk8
           ls -l signing
 
       - name: Build
@@ -82,7 +67,7 @@ jobs:
           set -euo pipefail
           export AGENT_CHESS_KEY="$PWD/signing/key.pk8"
           export AGENT_CHESS_CERT="$PWD/signing/cert.der"
-          export VERSION_NAME="${{ github.event.inputs.version_name || '1.1' }}"
+          export VERSION_NAME="1.1"
           bash scripts/build-apk.sh
 
       - name: Show result
